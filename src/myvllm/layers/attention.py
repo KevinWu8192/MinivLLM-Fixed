@@ -21,48 +21,32 @@ def store_kvcache_kernel(
     Grid layout: (num_tokens, num_kv_heads)
     Cache layout: (num_blocks, block_size, num_kv_heads, head_dim)
     """
-    # thread ID, in dimension 0
-    token_idx = tl.program_id(0) # each GPU thread processes one token
-    # slot ID, where in cache to store this token
+    # program 相当于 blockIdx
+    token_idx = tl.program_id(0)
+    # 全局slot idx
     slot_idx = tl.load(slot_mapping_ptr + token_idx)
-    
     if slot_idx == -1:
         return
-    
-    # Calculate which block and position within block
+    # 全局 block idx
     block_idx = slot_idx // block_size
+    # block 内的 slot idx
     block_offset = slot_idx % block_size
-    
-    # Process each head
-    # program_id(0) = which token
-    # program_id(1) = which head
     head_idx = tl.program_id(1)
-    
-    # it creates a vector [0, 1, ..., head_dim-1]
-    # Load key and value for this token and head
     head_offsets = tl.arange(0, head_dim)
-    # Input: (num_tokens, num_kv_heads, head_dim)
-    # example: input_offset = 5 * (8 * 128) + 3 * 128 + [0, 1, 2, ..., 127]
-    #         = 5120 + 384 + [0, 1, 2, ..., 127]
-    #         = [5504, 5505, 5506, ..., 5631]
+
+    # 新计算出的 kv cache （待加入kv cache block）
     input_offset = (token_idx * num_kv_heads * head_dim + # skip previous tokens
                     head_idx * head_dim + # skip previous heads
                     head_offsets)
-
-    # Cache: (num_blocks, block_size, num_kv_heads, head_dim)
-    cache_offset = (block_idx * block_size * num_kv_heads * head_dim + # skip previous blocks
-                   block_offset * num_kv_heads * head_dim + # skip previous positions in block
-                   head_idx * head_dim + # skip previous heads
-                   head_offsets) 
     
-    # load key and value value floats from the pointers's memory
+    cache_offset = (block_idx * block_size * num_kv_heads * head_dim + # skip previous blocks
+                    block_offset * num_kv_heads * head_dim + # skip previous slots within targeted block 
+                    head_idx * head_dim + # skip previous heads
+                    head_offsets)
     key = tl.load(key_ptr + input_offset)
     value = tl.load(value_ptr + input_offset)
-    
-    # store into cache
     tl.store(k_cache_ptr + cache_offset, key)
     tl.store(v_cache_ptr + cache_offset, value)
-
 
 def store_kvcache(
     key: torch.Tensor, 

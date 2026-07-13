@@ -12,10 +12,14 @@ class SiluAndMul(nn.Module):
     def __init__(self):
         super().__init__()
 
+    # 算子融合，前面的gate和up矩阵沿最后一维拼接起来了
+    # 所以算出来的x包括了gate值和up值，因此将其沿最后一维再切开
+    # 然后使用一个算子进行门控操作
     @torch.compile
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x, y = x.chunk(2, -1)
         return F.silu(x) * y
+
 
 if __name__ == "__main__":
     # Example usage

@@ -18,9 +18,9 @@ class VocabParallelEmbedding(nn.Module):
         # keep the original num_embeddings
         self.num_embeddings = num_embeddings
         # pad to make it divisible by tp_size
-        self.padded_num_embeddings = (num_embeddings + self.tp_size - 1) // self.tp_size * self.tp_size
         # this is the num_embeddings per partition in this current GPU
-        self.num_embeddings_per_partition = self.padded_num_embeddings // self.tp_size
+        self.num_embeddings_per_partition = (num_embeddings + self.tp_size - 1) // self.tp_size
+        self.padded_num_embeddings = self.num_embeddings_per_partition * self.tp_size
         self.embedding_dim = embedding_dim
 
         self.weight = nn.Parameter(torch.empty(self.num_embeddings_per_partition, embedding_dim))
@@ -51,6 +51,7 @@ class VocabParallelEmbedding(nn.Module):
         mask = (x >= self.tp_rank * self.num_embeddings_per_partition) & \
                (x < (self.tp_rank + 1) * self.num_embeddings_per_partition) & \
                (x < self.num_embeddings)
+        # 全局索引到本地索引到映射，这里无效位置的索引都会变成0，取第零个embedding，所以后面要再次应用mask
         x = mask * (x - self.tp_rank * self.num_embeddings_per_partition)
         output = F.embedding(x, self.weight)
 

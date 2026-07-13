@@ -4,34 +4,27 @@ import time
 class LayerNorm(torch.nn.Module):
     def __init__(self, gamma: torch.Tensor, eps: float = 1e-5):
         super().__init__()
-        # Use nn.Parameter to make gamma learnable and loadable from checkpoints
         self.weight = torch.nn.Parameter(gamma.detach().clone())
         self.eps = eps
 
     @property
     def gamma(self):
-        """Backward compatibility: gamma alias for weight"""
         return self.weight
-
-    @torch.compile
-    def rms_forward(self, x: torch.Tensor) -> torch.Tensor:
-        # RMSNorm(x) = (x / sqrt(mean(x²) + ε)) ⊙ γ
-
-        variance = x.pow(2).mean(dim=-1, keepdim=True) + self.eps
+    
+    def rms_norm(self, x: torch.Tensor) -> torch.Tensor:
+        variance = x.pow(2).mean(dim=-1, keepdim = True) + self.eps
         sqrt_variance = variance.sqrt()
-        x_norm = (x / sqrt_variance * self.weight)
-
-        return x_norm
-
-    def residual_rms_forward(self, x: torch.Tensor, residual: torch.Tensor) -> torch.Tensor:
+        return x / sqrt_variance * self.weight
+    
+    def rms_norm_with_residule(self, x: torch.Tensor, residual: torch.Tensor) -> torch.Tensor:
         x = x + residual
-        return self.rms_forward(x), x
-
+        return self.rms_norm(x), x
+    
     def forward(self, x: torch.Tensor, residual: torch.Tensor | None = None) -> torch.Tensor:
         if residual is not None:
-            return self.residual_rms_forward(x, residual)
+            return self.rms_norm_with_residule(x, residual)
         else:
-            return self.rms_forward(x)
+            return self.rms_norm(x)
 
 if __name__ == "__main__":
     # Example usage

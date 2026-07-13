@@ -8,35 +8,31 @@ class LinearBase(nn.Module):
     """
 
     def __init__(
-        self, 
-        input_size: int, 
-        output_size: int,
-        bias: bool = True,
-        tp_dim: int | None = None
-    ):
+            self, 
+            input_size: int, 
+            output_size: int,
+            bias: bool = True,
+            tp_dim: int | None = None
+        ):
         super().__init__()
-        # set tp_dim, tp_rank, tp_world_size for tensor parallelism
-        self.tp_dim = tp_dim 
+        self.tp_dim = tp_dim
         self.tp_rank = dist.get_rank()
         self.tp_size = dist.get_world_size()
-        
-        # create weight parameter with custom weight loader
+
         self.weight = nn.Parameter(torch.empty(output_size, input_size))
         self.weight.weight_loader = self.weight_loader
 
-        # create bias parameter
         if bias:
             self.bias = nn.Parameter(torch.zeros(output_size))
-            self.bias.weight_loader = self.weight_loader 
+            self.bias.weight_loader = self.weight_loader
         else:
             self.register_parameter('bias', None)
 
     def weight_loader(self, param: nn.Parameter, loaded_weights: torch.Tensor):
-        raise NotImplementedError("Subclasses should implement this method.")
+        raise NotImplemented("Subclass should implement this method")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError("Subclasses should implement this method.")
-
+        raise NotImplemented("Subclass should implement this method")
 """
 these functions are for is that we deploy a maybe randomly initialized model on GPU using some tensor/pipeline parallel method
 then we wanna load a saved model checkpoint to it
@@ -62,10 +58,9 @@ for name, param in model.named_parameters():
 # and run the forward as a normal linear layer
 class ReplicatedLinear(LinearBase):
     def __init__(
-        self, 
-        input_size: int, 
-        output_size: int,
-        bias: bool = True
+            input_size: int,
+            output_size: int,
+            bias: bool = True
     ):
         super().__init__(input_size, output_size, bias)
 
@@ -82,29 +77,23 @@ class ReplicatedLinear(LinearBase):
 # copy the parameter slice to the local parameter
 class ColumnParallelLinear(LinearBase):
     def __init__(
-        self, 
-        input_size: int, 
-        output_size: int,
-        bias: bool = True,
+            self,
+            intput_size: int,
+            output_size: int,
+            bias: bool = True
     ):
         tp_size = dist.get_world_size()
-        assert output_size % tp_size == 0, "Output size must be divisible by tensor parallel size."
-        super().__init__(input_size, output_size//tp_size, bias, tp_dim=0)
+        assert output_size % tp_size == 0, "output size muss be divided by tp size"
+        super().__init__(intput_size, output_size/tp_size, bias, 0)
 
-    # param: parameter after tensor parallelism
-    # loaded_weights: the original full parameter to be loaded into param
-    def weight_loader(self, param: nn.Parameter, loaded_weights: torch.Tensor):
-        param_data = param.data 
-        # full_dim on the output column
-        full_data_output_size = loaded_weights.size(0)
-        # dim size after sharding
-        shard_size = full_data_output_size // self.tp_size
-        assert shard_size == param_data.size(0), "Shard size does not match parameter size."
-        # starting index
-        start_index = self.tp_rank * shard_size
-        slided_weight = loaded_weights.narrow(0, start_index, shard_size)
-        param_data.copy_(slided_weight)
-
+    def weight_loader(self, param, loaded_weights):
+        full_size = loaded_weights.shape[0]
+        shard_size = full_size // self.tp_size
+        assert shard_size == param.shape[0], "shard size not match parameter size"
+        start = self.tp_rank * shard_size
+        end = start + shard_size
+        param.data.copy_(loaded_weights[start:end])
+        
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return nn.functional.linear(x, self.weight, self.bias)
 
