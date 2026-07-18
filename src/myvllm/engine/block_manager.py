@@ -80,40 +80,61 @@ class BlockManager:
         self.used_block_ids.remove(block_id)
         self.free_block_ids.append(block_id)
 
-    # whether we can allocate a block for this sequence
+    def _get_prefix_hit_blocks(self, seq: Sequence) -> list[Block]:
+        """Return the longest contiguous, reusable prefix of ``seq``.
+
+        The last prompt token must still be computed to produce logits, so the
+        block containing it is deliberately excluded from the cache hit.
+        """
+        h = -1
+        hit_blocks = []
+        max_cacheable_blocks = max(0, (seq.num_tokens - 1) // self.block_size)
+
+        for i in range(max_cacheable_blocks):
+            token_ids = seq.block(i)
+            h = self.compute_hash(token_ids, h)
+            block_id = self.hash_to_block_id.get(h)
+            if block_id is None:
+                break
+
+            block = self.blocks[block_id]
+            if block.token_ids != token_ids:  # hash collision
+                break
+            hit_blocks.append(block)
+
+        return hit_blocks
+
+    # whether we can allocate blocks for this sequence
     def can_allocate(self, seq: Sequence) -> bool:
-        return len(self.free_block_ids) >= seq.num_blocks
+        hit_blocks = self._get_prefix_hit_blocks(seq)
+
+        # A hit on an in-use block only increments its ref_count and therefore
+        # needs no free block. A hit with ref_count == 0 is still in the free
+        # queue; allocating the request removes it from that queue, so it must
+        # remain part of the capacity check.
+        num_shared_hit_blocks = sum(block.ref_count > 0 for block in hit_blocks)
+        num_required_free_blocks = seq.num_blocks - num_shared_hit_blocks
+        return len(self.free_block_ids) >= num_required_free_blocks
 
 
     def allocate(self, seq: Sequence) -> None:
+        hit_blocks = self._get_prefix_hit_blocks(seq)
         h = -1
-        prefix_hit = True
-        # KV cache does not contain the logits needed to sample the first
-        # completion token. Keep the last prompt token's block uncached so the
-        # model always runs at least one prompt token during prefill.
-        max_cacheable_blocks = max(0, (seq.num_tokens - 1) // self.block_size)
         for i in range(seq.num_blocks):
             token_ids = seq.block(i)
             # only compute hash for full blocks, always -1 for partial blocks
             h = self.compute_hash(token_ids=token_ids, prefix_hash_value=h) if len(token_ids) == self.block_size else -1
-            if prefix_hit and i < max_cacheable_blocks:
-                block_id = self.hash_to_block_id.get(h, -1)
-                # if cache miss or hash collision
-                if block_id == -1 or self.blocks[block_id].token_ids != token_ids:
-                    prefix_hit = False
-
-                if prefix_hit:
-                    # update sequence information
-                    seq.num_cached_tokens += self.block_size # which == len(token_ids)
-                    # prefix of finished request is hitted
-                    if block_id not in self.used_block_ids:
-                        block = self._allocate_hit_block(block_id)
-                    # prefix of on-going request is hitted
-                    else:
-                        block = self.blocks[self.hash_to_block_id[h]]
-                        block.ref_count += 1
-                    seq.block_table.append(block.block_id)
-                    continue
+            if i < len(hit_blocks):
+                block = hit_blocks[i]
+                seq.num_cached_tokens += self.block_size
+                # Prefix of a finished request is hit.
+                if block.ref_count == 0:
+                    self._allocate_hit_block(block.block_id)
+                # Prefix of an on-going request is hit.
+                else:
+                    block.ref_count += 1
+                seq.block_table.append(block.block_id)
+                continue
             # cache miss
             block = self._allocate_new_block(self.free_block_ids[0], h, token_ids)
             if h != -1:
