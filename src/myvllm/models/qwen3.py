@@ -286,12 +286,17 @@ class Qwen3Model(nn.Module):
 # Qwen3ForCausalLM
 # add lm_head on top of Qwen3Model
 class Qwen3ForCausalLM(nn.Module):
-    packed_module_mapping = {
-        "q_proj": ('q_proj', 'q'),
-        "k_proj": ('k_proj', 'k'),
-        "v_proj": ('v_proj', 'v'),
-        "gate_up": ('gate_up_proj', '0'),
-        "gate_down": ('gate_down_proj', '1'),
+    # target packed module -> (Hugging Face source module, shard id)
+    packed_modules_mapping = {
+        "qkv_projection": [
+            ("q_proj", "q"),
+            ("k_proj", "k"),
+            ("v_proj", "v"),
+        ],
+        "gate_up": [
+            ("gate_proj", 0),
+            ("up_proj", 1),
+        ],
     }
     def __init__(
         self,
