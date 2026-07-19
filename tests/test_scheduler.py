@@ -248,3 +248,52 @@ class TestContextLength:
         assert seq.is_finished
         assert seq.num_tokens == 4
         assert seq not in scheduler.running
+
+
+class TestPrefillBudget:
+    def test_rejects_uncached_prompt_larger_than_prefill_budget(self):
+        scheduler = make_scheduler(
+            max_num_batched_tokens=2,
+            max_model_length=8,
+        )
+        scheduler.add_sequence(Sequence([1, 2, 3], block_size=4))
+
+        with pytest.raises(ValueError, match="chunked prefill"):
+            scheduler.schedule()
+
+    def test_prefix_hit_counts_only_uncached_tokens(self):
+        scheduler = make_scheduler(
+            max_num_batched_tokens=2,
+            max_cached_blocks=8,
+            block_size=2,
+            max_model_length=8,
+        )
+        cached = Sequence([1, 2, 9], block_size=2)
+        scheduler.block_manager.allocate(cached)
+        scheduler.block_manager.deallocate(cached)
+
+        request = Sequence([1, 2, 3, 4], block_size=2)
+        scheduler.add_sequence(request)
+        scheduled, is_prefill = scheduler.schedule()
+
+        assert is_prefill
+        assert scheduled == [request]
+        assert request.num_cached_tokens == 2
+
+
+class TestSchedulingFairness:
+    def test_alternates_prefill_and_decode_when_both_have_work(self):
+        scheduler = make_scheduler(max_num_batched_tokens=100)
+        running = Sequence([1, 2], block_size=4)
+        scheduler.block_manager.allocate(running)
+        inject_running(scheduler, running)
+        waiting = Sequence([3, 4], block_size=4)
+        scheduler.add_sequence(waiting)
+
+        first, first_is_prefill = scheduler.schedule()
+        assert first_is_prefill
+        assert first == [waiting]
+
+        second, second_is_prefill = scheduler.schedule()
+        assert not second_is_prefill
+        assert set(second) == {running, waiting}

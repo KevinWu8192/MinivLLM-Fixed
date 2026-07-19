@@ -27,8 +27,8 @@ class BlockManager:
         self.block_size: int = block_size
         # list of all blocks
         self.blocks: list[Block] = [Block(i) for i in range(num_blocks)]
-        # hash to block id: this is for prefix caching
-        self.hash_to_block_id: dict[int, int] = {}
+        # Multiple physical blocks can represent the same logical prefix.
+        self.hash_to_block_ids: dict[int, set[int]] = {}
         # free block ids
         self.free_block_ids: deque[int] = deque(range(num_blocks))
         # used block ids
@@ -43,6 +43,18 @@ class BlockManager:
         h.update(np.array(token_ids, dtype=np.int32).tobytes())
         return h.intdigest()
 
+    def _register_hash(self, hash_value: int, block_id: int) -> None:
+        if hash_value != -1:
+            self.hash_to_block_ids.setdefault(hash_value, set()).add(block_id)
+
+    def _unregister_hash(self, hash_value: int, block_id: int) -> None:
+        block_ids = self.hash_to_block_ids.get(hash_value)
+        if block_ids is None:
+            return
+        block_ids.discard(block_id)
+        if not block_ids:
+            del self.hash_to_block_ids[hash_value]
+
     # move this block to used list and update all information of the block
     def _allocate_new_block(self, block_id: int, hash: int, token_ids: list[int]) -> Block:
         block = self.blocks[block_id]
@@ -51,11 +63,7 @@ class BlockManager:
         # 上述情况在prefix未连续命中会发生（如prefix的前面一部分被释放了，但是后面还有没被释放的）
         # 因此后面没释放的也不能命中，要新allocate block，但是这些block会计算出hash map中已有的hash值，改变block id指向
         old_hash = block.hash
-        if (
-            old_hash != -1
-            and self.hash_to_block_id.get(old_hash) == block_id
-        ):
-            del self.hash_to_block_id[old_hash]
+        self._unregister_hash(old_hash, block_id)
         block.reset()
         self.free_block_ids.remove(block_id)
         self.used_block_ids.add(block_id)
@@ -72,7 +80,7 @@ class BlockManager:
         block.ref_count += 1
         return block
 
-    # not reset block information and hash_to_block_id for inter-request prefix caching
+    # Keep block contents and hash indexes for inter-request prefix caching.
     def _deallocate_block(self, block_id: int) -> None:
         assert self.blocks[block_id].ref_count == 0, "Block is still in use"
         block = self.blocks[block_id]
@@ -93,13 +101,18 @@ class BlockManager:
         for i in range(max_cacheable_blocks):
             token_ids = seq.block(i)
             h = self.compute_hash(token_ids, h)
-            block_id = self.hash_to_block_id.get(h)
-            if block_id is None:
+            block_ids = self.hash_to_block_ids.get(h)
+            if not block_ids:
                 break
-
-            block = self.blocks[block_id]
-            if block.token_ids != token_ids:  # hash collision
+            matching_blocks = [
+                self.blocks[block_id]
+                for block_id in block_ids
+                if self.blocks[block_id].token_ids == token_ids
+            ]
+            if not matching_blocks:  # hash collision
                 break
+            # Sharing an in-use block consumes no free block, so prefer it.
+            block = max(matching_blocks, key=lambda candidate: candidate.ref_count > 0)
             hit_blocks.append(block)
 
         return hit_blocks
@@ -115,6 +128,10 @@ class BlockManager:
         num_shared_hit_blocks = sum(block.ref_count > 0 for block in hit_blocks)
         num_required_free_blocks = seq.num_blocks - num_shared_hit_blocks
         return len(self.free_block_ids) >= num_required_free_blocks
+
+    def get_num_cached_tokens(self, seq: Sequence) -> int:
+        """Return the reusable prefix length without mutating the sequence."""
+        return len(self._get_prefix_hit_blocks(seq)) * self.block_size
 
 
     def allocate(self, seq: Sequence) -> None:
@@ -137,8 +154,7 @@ class BlockManager:
                 continue
             # cache miss
             block = self._allocate_new_block(self.free_block_ids[0], h, token_ids)
-            if h != -1:
-                self.hash_to_block_id[h] = block.block_id
+            self._register_hash(h, block.block_id)
             seq.block_table.append(block.block_id)
         
     def deallocate(self, seq: Sequence) -> None:
@@ -173,7 +189,7 @@ class BlockManager:
             h = self.compute_hash(token_ids = token_ids, prefix_hash_value = -1 if len(block_tables) == 1 else self.blocks[block_tables[-2]].hash)
             block = self.blocks[last_block_for_seq_id]
             block.update(h=h, token_ids=seq.block(seq.num_blocks - 1))
-            self.hash_to_block_id[h] = block.block_id
+            self._register_hash(h, block.block_id)
         # if one new block is needed
         elif seq.num_tokens % self.block_size == 1:
             # Previous block should be finalized

@@ -14,7 +14,9 @@ class SequenceStatus(Enum):
 class Sequence:
     counter = count()
 
-    def __init__(self, token_ids: list[int], block_size: int, sampling_params = SamplingParams()):
+    def __init__(self, token_ids: list[int], block_size: int, sampling_params=None):
+        if sampling_params is None:
+            sampling_params = SamplingParams()
         self.block_size = block_size # number of tokens per block
         # record sequence id
         self.seq_id = next(Sequence.counter)
@@ -93,6 +95,7 @@ class Sequence:
 
     def __getstate__(self):
         return (
+            self.block_size,
             self.num_tokens, 
             self.num_prompt_tokens, 
             self.num_cached_tokens, 
@@ -102,6 +105,7 @@ class Sequence:
 
     def __setstate__(self, state):
         (
+            self.block_size,
             self.num_tokens,
             self.num_prompt_tokens,
             self.num_cached_tokens,

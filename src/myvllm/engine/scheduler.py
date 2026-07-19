@@ -26,6 +26,9 @@ class Scheduler:
         self.waiting: deque[Sequence] = deque()
         self.running: deque[Sequence] = deque()
         self.eos = eos
+        # Prefill and decode use different kernels. Alternate when both queues
+        # have work so neither newly arrived prompts nor decodes can starve.
+        self._last_scheduled_prefill = False
 
 
     def is_finished(self):
@@ -50,7 +53,6 @@ class Scheduler:
                 f"Prompt length ({sequence.num_prompt_tokens}) must be smaller "
                 f"than the request context limit ({request_max_length})"
             )
-
         sequence.max_model_length = request_max_length
         self.waiting.append(sequence)
 
@@ -59,18 +61,31 @@ class Scheduler:
         scheduled_sequences = []
         current_scheduled_tokens = 0
         # try schedule for prefilling from waiting queue if not exceeding limits
-        while self.waiting and len(scheduled_sequences) < self.max_num_sequences:
+        try_prefill = self.waiting and (
+            not self.running or not self._last_scheduled_prefill
+        )
+        while try_prefill and self.waiting and len(scheduled_sequences) < self.max_num_sequences:
             seq = self.waiting[0]
-            if self.block_manager.can_allocate(seq) and len(seq) + current_scheduled_tokens <= self.max_num_batched_tokens:
+            num_prefill_tokens = (
+                len(seq) - self.block_manager.get_num_cached_tokens(seq)
+            )
+            if num_prefill_tokens > self.max_num_batched_tokens:
+                raise ValueError(
+                    f"Request needs {num_prefill_tokens} prefill tokens, but "
+                    f"max_num_batched_tokens is {self.max_num_batched_tokens}; "
+                    "chunked prefill is not supported"
+                )
+            if self.block_manager.can_allocate(seq) and num_prefill_tokens + current_scheduled_tokens <= self.max_num_batched_tokens:
                 seq = self.waiting.popleft() # remove from waiting
                 self.block_manager.allocate(seq)
                 seq.status = SequenceStatus.RUNNING
                 self.running.append(seq)
                 scheduled_sequences.append(seq)
-                current_scheduled_tokens += len(seq)
+                current_scheduled_tokens += len(seq) - seq.num_cached_tokens
             else:
                 break
         if scheduled_sequences:
+            self._last_scheduled_prefill = True
             return scheduled_sequences, True
         
         # try schedule for completion from running queue
@@ -96,6 +111,7 @@ class Scheduler:
         # re-add to running queue in the same order
         if scheduled_sequences:
             self.running.extendleft(reversed(scheduled_sequences))
+            self._last_scheduled_prefill = False
 
         return scheduled_sequences, False
 
@@ -109,6 +125,11 @@ class Scheduler:
     # postprocess after generation to check whether sequences are finished
     # if finished, deallocate blocks
     def postprocess(self, seqs: list[Sequence], token_ids: list[int]) -> None:
+        if token_ids is None or len(seqs) != len(token_ids):
+            actual = 0 if token_ids is None else len(token_ids)
+            raise RuntimeError(
+                f"Sampler returned {actual} tokens for {len(seqs)} sequences"
+            )
         for seq, token_id in zip(seqs, token_ids):
             seq.append_token(token_id)
             # Check stopping conditions:
