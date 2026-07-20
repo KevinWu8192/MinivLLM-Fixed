@@ -1,6 +1,6 @@
 # 摘要 — Commit ID 区间：[`dcff99f`](https://github.com/KevinWu8192/MinivLLM/commit/dcff99f3b791a230eddc447b0519583bf6c209e5) → [`f71bd44`](https://github.com/KevinWu8192/MinivLLM/commit/f71bd443275e6f0b1ddfa3e482fa34e160ef92a9)
 
-**Tag：** [`release-6`](https://github.com/KevinWu8192/MinivLLM/tree/release-6)
+**Tag：** [`release-6`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-6)
 
 本次 Release 为下一个 Release 准备 Decode Attention 基础。下一个 Release 将加入 Qwen3-32B 的单机多 GPU 部署，并以此验证张量并行（TP）以及整套推理框架中的 Prefill/Decode 调度、KV Cache、CUDA Graph 和多 Rank 执行路径。Release 6 首先消除大模型 Decode Kernel 瓶颈：在隔离的 Qwen3-32B Decode Attention 基准测试中，新 Kernel 相比原实现取得约 **75× 的 Kernel 级性能提升**。
 

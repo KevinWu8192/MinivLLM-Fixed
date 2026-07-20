@@ -1,6 +1,6 @@
 # Summary — Commit ID Range: [`dcff99f`](https://github.com/KevinWu8192/MinivLLM/commit/dcff99f3b791a230eddc447b0519583bf6c209e5) → [`f71bd44`](https://github.com/KevinWu8192/MinivLLM/commit/f71bd443275e6f0b1ddfa3e482fa34e160ef92a9)
 
-**Tag:** [`release-6`](https://github.com/KevinWu8192/MinivLLM/tree/release-6)
+**Tag:** [`release-6`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-6)
 
 This release prepares the decode-attention foundation for the next release. The next release will add single-node, multi-GPU deployment for Qwen3-32B and use it to validate Tensor Parallelism (TP) together with the complete inference framework's Prefill/Decode scheduling, KV Cache, CUDA Graph, and multi-rank execution paths. Release 6 first removes the large-model Decode Kernel bottleneck: in the isolated Qwen3-32B decode-attention benchmark, the new kernel delivers approximately **75× kernel-level speedup** over the original implementation.
 

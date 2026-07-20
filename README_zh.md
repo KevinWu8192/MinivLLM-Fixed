@@ -22,7 +22,7 @@
 | Release 3 | `686b547` | [`release-3`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-3) | Prefix Cache 命中后基于完整 KV Context 的 Prefill Attention | [简体中文](releases/release-3_zh.md) · [English](releases/release-3.md) |
 | Release 4 | `4d1760d` | [`release-4`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-4) | Qwen3 张量并行 Checkpoint 加载与严格验证 | [简体中文](releases/release-4_zh.md) · [English](releases/release-4.md) |
 | Release 5 | `ee950af` | [`release-5`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-5) | 多 GPU 协同、调度公平性、数值稳定性与 CUDA Graph 正确性 | [简体中文](releases/release-5_zh.md) · [English](releases/release-5.md) |
-| Release 6 | `dcff99f–f71bd44` | [`release-6`](https://github.com/KevinWu8192/MinivLLM/tree/release-6) | Split-KV GQA Decode Kernel、分块 MMA、稳定归约与约 75× Kernel 级加速 | [简体中文](releases/release-6_zh.md) · [English](releases/release-6.md) |
+| Release 6 | `dcff99f–f71bd44` | [`release-6`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-6) | Split-KV GQA Decode Kernel、分块 MMA、稳定归约与约 75× Kernel 级加速 | [简体中文](releases/release-6_zh.md) · [English](releases/release-6.md) |
 
 自定义实现的vLLM推理引擎，基于Nano-vLLM。添加了注意力机制的基准测试，以及Pageattention、FlashAttention的代码实现。
 

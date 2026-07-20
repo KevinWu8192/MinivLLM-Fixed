@@ -22,7 +22,7 @@ This repository provides a fully runnable MiniVLLM inference framework. It fixes
 | Release 3 | `686b547` | [`release-3`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-3) | Prefix Cache-aware Prefill Attention over the complete KV context | [English](releases/release-3.md) · [简体中文](releases/release-3_zh.md) |
 | Release 4 | `4d1760d` | [`release-4`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-4) | Qwen3 tensor-parallel checkpoint loading and strict validation | [English](releases/release-4.md) · [简体中文](releases/release-4_zh.md) |
 | Release 5 | `ee950af` | [`release-5`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-5) | Multi-GPU coordination, scheduling fairness, numerical stability, and CUDA Graph correctness | [English](releases/release-5.md) · [简体中文](releases/release-5_zh.md) |
-| Release 6 | `dcff99f–f71bd44` | [`release-6`](https://github.com/KevinWu8192/MinivLLM/tree/release-6) | Split-KV GQA Decode Kernel with tiled MMA, stable reduction, and ~75× kernel-level speedup | [English](releases/release-6.md) · [简体中文](releases/release-6_zh.md) |
+| Release 6 | `dcff99f–f71bd44` | [`release-6`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-6) | Split-KV GQA Decode Kernel with tiled MMA, stable reduction, and ~75× kernel-level speedup | [English](releases/release-6.md) · [简体中文](releases/release-6_zh.md) |
 
 A custom implementation of vLLM inference engine with attention mechanism benchmarks, based on Nano-vLLM but with self-contained paged attention and flash attention implementation. 
 
