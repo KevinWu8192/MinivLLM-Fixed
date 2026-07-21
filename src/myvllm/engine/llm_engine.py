@@ -10,6 +10,7 @@ from myvllm.engine.sequence import Sequence
 from myvllm.engine.scheduler import Scheduler
 from myvllm.engine.model_runner import ModelRunner
 from myvllm.sampling_parameters import SamplingParams
+from myvllm.utils.loader import resolve_checkpoint_path
 from transformers import AutoTokenizer
 
 
@@ -23,6 +24,16 @@ def worker_process(config, rank, event):
 
     model_runner = ModelRunner(config, rank, event)
     model_runner.loop()
+
+
+def resolve_checkpoint_once(config: dict) -> str | None:
+    """Resolve a remote checkpoint before tensor-parallel workers are spawned."""
+    model_name_or_path = config.get("model_name_or_path")
+    if not model_name_or_path:
+        return None
+    if "checkpoint_path" not in config:
+        config["checkpoint_path"] = resolve_checkpoint_path(model_name_or_path)
+    return config["checkpoint_path"]
 
 
 class LLMEngine:
@@ -53,6 +64,12 @@ class LLMEngine:
             self.config.setdefault(
                 "shared_memory_name", f"myvllm-{uuid.uuid4().hex}"
             )
+
+        # Resolve or download the checkpoint exactly once in the parent. Every
+        # TP rank receives the resulting local directory through its config,
+        # avoiding concurrent snapshot_download calls for the same model.
+        resolve_checkpoint_once(self.config)
+
         ctx = mp.get_context("spawn")
         self.processes = []
         self.events = []

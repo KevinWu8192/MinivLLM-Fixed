@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 import torch
 
-from myvllm.engine.llm_engine import LLMEngine
+from myvllm.engine.llm_engine import LLMEngine, resolve_checkpoint_once
 from myvllm.engine.block_manager import BlockManager
 from myvllm.engine.sequence import Sequence
 from myvllm.models.qwen3 import get_qwen_positions
@@ -99,3 +99,21 @@ def test_generate_skips_special_tokens_when_decoding():
     engine.tokenizer.decode.assert_called_once_with(
         [10, 11], skip_special_tokens=True
     )
+
+
+def test_checkpoint_is_resolved_only_once(monkeypatch):
+    calls = []
+
+    def fake_resolve(model_name_or_path):
+        calls.append(model_name_or_path)
+        return "/models/Qwen3-32B"
+
+    monkeypatch.setattr(
+        "myvllm.engine.llm_engine.resolve_checkpoint_path", fake_resolve
+    )
+    config = {"model_name_or_path": "Qwen/Qwen3-32B"}
+
+    assert resolve_checkpoint_once(config) == "/models/Qwen3-32B"
+    assert resolve_checkpoint_once(config) == "/models/Qwen3-32B"
+    assert config["checkpoint_path"] == "/models/Qwen3-32B"
+    assert calls == ["Qwen/Qwen3-32B"]

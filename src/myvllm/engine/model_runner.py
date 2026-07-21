@@ -96,7 +96,10 @@ class ModelRunner:
         # Load pretrained weights if model_name_or_path is provided
         if config.get('model_name_or_path'):
             from myvllm.utils.loader import load_weights_from_checkpoint
-            load_weights_from_checkpoint(self.model, config['model_name_or_path'])
+            load_weights_from_checkpoint(
+                self.model,
+                config.get('checkpoint_path', config['model_name_or_path']),
+            )
 
         # Load weights in CPU (move the model to GPU after loading weights)
         # self.model = self.model.cuda(rank)

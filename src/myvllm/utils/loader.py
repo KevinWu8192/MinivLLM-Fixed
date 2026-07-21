@@ -105,7 +105,7 @@ def load_weights(
     return loaded_names
 
 
-def _resolve_checkpoint_path(model_name_or_path: str) -> str:
+def resolve_checkpoint_path(model_name_or_path: str) -> str:
     path = os.path.expanduser(model_name_or_path)
     if os.path.isdir(path):
         return path
@@ -149,7 +149,7 @@ def load_weights_from_checkpoint(
     model: nn.Module, model_name_or_path: str
 ) -> set[str]:
     """Load a local or Hugging Face safetensors checkpoint into ``model``."""
-    checkpoint_path = _resolve_checkpoint_path(model_name_or_path)
+    checkpoint_path = resolve_checkpoint_path(model_name_or_path)
     loaded_names = load_weights(
         model, _iter_safetensor_weights(checkpoint_path)
     )
