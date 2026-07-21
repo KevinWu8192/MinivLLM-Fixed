@@ -24,7 +24,7 @@
 | Release 5 | `ee950af` | [`release-5`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-5) | 多 GPU 协同、调度公平性、数值稳定性与 CUDA Graph 正确性 | [简体中文](releases/release-5_zh.md) · [English](releases/release-5.md) |
 | Release 6 | `dcff99f–f71bd44` | [`release-6`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-6) | Split-KV GQA Decode Kernel、分块 MMA、稳定归约与约 75× Kernel 级加速 | [简体中文](releases/release-6_zh.md) · [English](releases/release-6.md) |
 | Release 7 | `7d1b0f1–5608dc3` | [`release-7`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-7) | Qwen3-32B 集成、Large-scale Attention 与 TP 单次下载启动 | [简体中文](releases/release-7_zh.md) · [English](releases/release-7.md) |
-| Release 8 | `1e73f71–bfefde5` | [`release-8`](https://github.com/KevinWu8192/MinivLLM/tree/release-8) | Qwen3-32B 压力测试、BF16/KV/CUDA Graph 修复与测试资产统一整理 | [简体中文](releases/release-8_zh.md) · [English](releases/release-8.md) |
+| Release 8 | `1e73f71–bfefde5` | [`release-8`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8) | Qwen3-32B 压力测试、BF16/KV/CUDA Graph 修复与测试资产统一整理 | [简体中文](releases/release-8_zh.md) · [English](releases/release-8.md) |
 
 自定义实现的vLLM推理引擎，基于Nano-vLLM。添加了注意力机制的基准测试，以及Pageattention、FlashAttention的代码实现。
 

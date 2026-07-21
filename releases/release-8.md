@@ -1,6 +1,6 @@
 # Summary — Commit ID Range: [`1e73f71`](https://github.com/KevinWu8192/MinivLLM/commit/1e73f71de402c9a59ec0fd17dc7895b16070dfd9) → [`bfefde5`](https://github.com/KevinWu8192/MinivLLM/commit/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6)
 
-**Tag:** [`release-8`](https://github.com/KevinWu8192/MinivLLM/tree/release-8)
+**Tag:** [`release-8`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8)
 
 This release validates Qwen3-32B end to end on two RTX PRO 6000 Blackwell GPUs. It adds four reproducible stress workloads and committed raw results, then fixes the BF16 Tensor Parallel output gather, steady-state KV Cache sizing, failed-startup worker cleanup, and CUDA Graph replay bugs exposed by those workloads.
 

@@ -24,7 +24,7 @@ This repository provides a fully runnable MiniVLLM inference framework. It fixes
 | Release 5 | `ee950af` | [`release-5`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-5) | Multi-GPU coordination, scheduling fairness, numerical stability, and CUDA Graph correctness | [English](releases/release-5.md) · [简体中文](releases/release-5_zh.md) |
 | Release 6 | `dcff99f–f71bd44` | [`release-6`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-6) | Split-KV GQA Decode Kernel with tiled MMA, stable reduction, and ~75× kernel-level speedup | [English](releases/release-6.md) · [简体中文](releases/release-6_zh.md) |
 | Release 7 | `7d1b0f1–5608dc3` | [`release-7`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-7) | Qwen3-32B integration, large-scale Attention, and single-download TP startup | [English](releases/release-7.md) · [简体中文](releases/release-7_zh.md) |
-| Release 8 | `1e73f71–bfefde5` | [`release-8`](https://github.com/KevinWu8192/MinivLLM/tree/release-8) | Qwen3-32B stress benchmarks, BF16/KV/CUDA Graph fixes, and unified test assets | [English](releases/release-8.md) · [简体中文](releases/release-8_zh.md) |
+| Release 8 | `1e73f71–bfefde5` | [`release-8`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8) | Qwen3-32B stress benchmarks, BF16/KV/CUDA Graph fixes, and unified test assets | [English](releases/release-8.md) · [简体中文](releases/release-8_zh.md) |
 
 A custom implementation of vLLM inference engine with attention mechanism benchmarks, based on Nano-vLLM but with self-contained paged attention and flash attention implementation. 
 

@@ -1,6 +1,6 @@
 # 摘要 — Commit ID 区间：[`1e73f71`](https://github.com/KevinWu8192/MinivLLM/commit/1e73f71de402c9a59ec0fd17dc7895b16070dfd9) → [`bfefde5`](https://github.com/KevinWu8192/MinivLLM/commit/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6)
 
-**Tag：** [`release-8`](https://github.com/KevinWu8192/MinivLLM/tree/release-8)
+**Tag：** [`release-8`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8)
 
 本次 Release 在两张 RTX PRO 6000 Blackwell GPU 上完成了 Qwen3-32B 端到端验证，新增四种可复现压力测试与原始结果，并修复测试暴露出的 BF16 张量并行输出 Gather、稳态 KV Cache 容量计算、启动失败 Worker 清理及 CUDA Graph Replay 问题。
 
