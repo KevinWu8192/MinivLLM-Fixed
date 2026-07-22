@@ -7,7 +7,7 @@
 | <a href="./README_zh.md"><b>简体中文</b></a> |
 </p>
 
-# miniVLLM
+# MinivLLM-Fixed
 
 First, many thanks to the original author for providing a minimal vLLM implementation that makes vLLM much easier to learn. However, the original MiniVLLM project is not yet complete: it contains a number of bugs and cannot reliably run an end-to-end tensor-parallel (TP) inference pipeline with correct scheduling and KV cache management.
 
