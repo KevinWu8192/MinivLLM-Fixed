@@ -13,7 +13,7 @@ First, many thanks to the original author for providing a minimal vLLM implement
 
 This repository provides a fully runnable MiniVLLM inference framework. It fixes the bugs in the original project and adds new features on top of it. Bug fixes and new features are published as releases, each with a corresponding commit ID range, so learners can follow the releases step by step to fix the bugs, understand each new feature, or build their own features.
 
-> **Inference starting point:** [Release 8](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8) is the first fully end-to-end runnable release. Start with Release 8 or a newer version when running inference or benchmarks; earlier releases are incremental learning checkpoints and may not run the complete inference pipeline.
+> **Inference starting point:** [Release 8](https://github.com/KevinWu8192/MinivLLM/tree/release-8) is the first fully end-to-end runnable release. Start with Release 8 or a newer version when running inference or benchmarks; earlier releases are incremental learning checkpoints and may not run the complete inference pipeline.
 
 ## Recent Releases
 
@@ -26,7 +26,7 @@ This repository provides a fully runnable MiniVLLM inference framework. It fixes
 | Release 5 | `ee950af` | [`release-5`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-5) | Multi-GPU coordination, scheduling fairness, numerical stability, and CUDA Graph correctness | [English](releases/release-5.md) · [简体中文](releases/release-5_zh.md) |
 | Release 6 | `dcff99f–f71bd44` | [`release-6`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-6) | Split-KV GQA Decode Kernel with tiled MMA, stable reduction, and ~75× kernel-level speedup | [English](releases/release-6.md) · [简体中文](releases/release-6_zh.md) |
 | Release 7 | `7d1b0f1–5608dc3` | [`release-7`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-7) | Qwen3-32B integration, large-scale Attention, and single-download TP startup | [English](releases/release-7.md) · [简体中文](releases/release-7_zh.md) |
-| **Release 8** | `1e73f71–bfefde5` | **[`release-8`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8)** | **First fully end-to-end runnable release; recommended starting point for inference tests.** Includes Qwen3-32B stress benchmarks plus BF16, KV Cache, TP cleanup, and CUDA Graph fixes. | [English](releases/release-8.md) · [简体中文](releases/release-8_zh.md) |
+| **Release 8** | `1e73f71–10f61d4` | **[`release-8`](https://github.com/KevinWu8192/MinivLLM/tree/release-8)** | **First fully end-to-end runnable release; recommended starting point for inference tests.** Includes Qwen3-32B stress benchmarks plus BF16, KV Cache, TP cleanup, and CUDA Graph fixes. | [English](releases/release-8.md) · [简体中文](releases/release-8_zh.md) |
 
 A custom implementation of vLLM inference engine with attention mechanism benchmarks, based on Nano-vLLM but with self-contained paged attention and flash attention implementation. 
 

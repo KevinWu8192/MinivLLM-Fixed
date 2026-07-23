@@ -1,6 +1,6 @@
-# 摘要 — Commit ID 区间：[`1e73f71`](https://github.com/KevinWu8192/MinivLLM/commit/1e73f71de402c9a59ec0fd17dc7895b16070dfd9) → [`bfefde5`](https://github.com/KevinWu8192/MinivLLM/commit/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6)
+# 摘要 — Commit ID 区间：[`1e73f71`](https://github.com/KevinWu8192/MinivLLM/commit/1e73f71de402c9a59ec0fd17dc7895b16070dfd9) → [`10f61d4`](https://github.com/KevinWu8192/MinivLLM/commit/10f61d40a8705bae90123016d2c81ad70e44d0f8)
 
-**Tag：** [`release-8`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8)
+**Tag：** [`release-8`](https://github.com/KevinWu8192/MinivLLM/tree/release-8)
 
 本次 Release 在两张 RTX PRO 6000 Blackwell GPU 上完成了 Qwen3-32B 端到端验证，新增四种可复现压力测试与原始结果，并修复测试暴露出的 BF16 张量并行输出 Gather、稳态 KV Cache 容量计算、启动失败 Worker 清理及 CUDA Graph Replay 问题。
 
@@ -11,11 +11,9 @@
 **涉及文件**
 
 * `tests/benchmarks/benchmark_qwen3_32b_stress.py`
-* `tests/results/qwen3_32b/README.md`
-* `tests/results/qwen3_32b/stress_high_concurrency.json`
-* `tests/results/qwen3_32b/stress_long_decode.json`
-* `tests/results/qwen3_32b/stress_max_output.json`
-* `tests/results/qwen3_32b/stress_prefix_cache.json`
+* `tests/benchmarks/high-concurrency.json`
+* `tests/benchmarks/long-decode.json`
+* `tests/benchmarks/prefix-cache.json`
 
 **功能**
 
@@ -35,7 +33,7 @@
 | 最大输出 | 1 请求 × 8,169 Prompt + 32,768 输出 | 完成全部 32,768 Token；35.60 Decode tok/s；Decode 920.45 s、总计 923.03 s |
 | Prefix Cache | 8 请求 × 约 16K Prompt + 256 输出 | 热缓存命中率 98.69%；Prefill 从 31.902 s 降到 1.087 s；总时间提升 3.91× |
 
-Prefix Cache 共复用 129,024 Token，即每请求 16,128 Token，正好是 63 个完整的 256-Token Block。最大输出测试达到 40,937 个总 Token，距离配置的 40,960 位置容量仅 23。原始证据分别提交为[高并发](https://github.com/KevinWu8192/MinivLLM/blob/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6/tests/results/qwen3_32b/stress_high_concurrency.json)、[长 Decode](https://github.com/KevinWu8192/MinivLLM/blob/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6/tests/results/qwen3_32b/stress_long_decode.json)、[最大输出](https://github.com/KevinWu8192/MinivLLM/blob/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6/tests/results/qwen3_32b/stress_max_output.json)和 [Prefix Cache](https://github.com/KevinWu8192/MinivLLM/blob/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6/tests/results/qwen3_32b/stress_prefix_cache.json)。
+Prefix Cache 共复用 129,024 Token，即每请求 16,128 Token，正好是 63 个完整的 256-Token Block。最大输出测试达到 40,937 个总 Token，距离配置的 40,960 位置容量仅 23。更新后的原始证据分别提交为[高并发](https://github.com/KevinWu8192/MinivLLM/blob/10f61d40a8705bae90123016d2c81ad70e44d0f8/tests/benchmarks/high-concurrency.json)、[长 Decode](https://github.com/KevinWu8192/MinivLLM/blob/10f61d40a8705bae90123016d2c81ad70e44d0f8/tests/benchmarks/long-decode.json)和 [Prefix Cache](https://github.com/KevinWu8192/MinivLLM/blob/10f61d40a8705bae90123016d2c81ad70e44d0f8/tests/benchmarks/prefix-cache.json)。
 
 ## 主要修复
 

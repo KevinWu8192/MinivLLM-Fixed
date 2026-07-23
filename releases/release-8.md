@@ -1,6 +1,6 @@
-# Summary — Commit ID Range: [`1e73f71`](https://github.com/KevinWu8192/MinivLLM/commit/1e73f71de402c9a59ec0fd17dc7895b16070dfd9) → [`bfefde5`](https://github.com/KevinWu8192/MinivLLM/commit/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6)
+# Summary — Commit ID Range: [`1e73f71`](https://github.com/KevinWu8192/MinivLLM/commit/1e73f71de402c9a59ec0fd17dc7895b16070dfd9) → [`10f61d4`](https://github.com/KevinWu8192/MinivLLM/commit/10f61d40a8705bae90123016d2c81ad70e44d0f8)
 
-**Tag:** [`release-8`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8)
+**Tag:** [`release-8`](https://github.com/KevinWu8192/MinivLLM/tree/release-8)
 
 This release validates Qwen3-32B end to end on two RTX PRO 6000 Blackwell GPUs. It adds four reproducible stress workloads and committed raw results, then fixes the BF16 Tensor Parallel output gather, steady-state KV Cache sizing, failed-startup worker cleanup, and CUDA Graph replay bugs exposed by those workloads.
 
@@ -11,11 +11,9 @@ This release validates Qwen3-32B end to end on two RTX PRO 6000 Blackwell GPUs. 
 **Files**
 
 * `tests/benchmarks/benchmark_qwen3_32b_stress.py`
-* `tests/results/qwen3_32b/README.md`
-* `tests/results/qwen3_32b/stress_high_concurrency.json`
-* `tests/results/qwen3_32b/stress_long_decode.json`
-* `tests/results/qwen3_32b/stress_max_output.json`
-* `tests/results/qwen3_32b/stress_prefix_cache.json`
+* `tests/benchmarks/high-concurrency.json`
+* `tests/benchmarks/long-decode.json`
+* `tests/benchmarks/prefix-cache.json`
 
 **Features**
 
@@ -35,7 +33,7 @@ The test system used two NVIDIA RTX PRO 6000 Blackwell Server Edition GPUs with 
 | Maximum output | 1 request × 8,169 Prompt + 32,768 output | All 32,768 Tokens completed; 35.60 Decode tok/s; 920.45 s Decode and 923.03 s total |
 | Prefix Cache | 8 requests × approximately 16K Prompt + 256 output | 98.69% hot-cache hit rate; Prefill fell from 31.902 s to 1.087 s; total time improved 3.91× |
 
-The Prefix Cache reused 129,024 Tokens, or 16,128 Tokens per request: exactly 63 complete 256-token Blocks. The maximum-output run reached 40,937 total Tokens, only 23 below the configured 40,960 position capacity. Raw evidence is committed for [high concurrency](https://github.com/KevinWu8192/MinivLLM/blob/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6/tests/results/qwen3_32b/stress_high_concurrency.json), [long Decode](https://github.com/KevinWu8192/MinivLLM/blob/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6/tests/results/qwen3_32b/stress_long_decode.json), [maximum output](https://github.com/KevinWu8192/MinivLLM/blob/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6/tests/results/qwen3_32b/stress_max_output.json), and [Prefix Cache](https://github.com/KevinWu8192/MinivLLM/blob/bfefde51df92d1bbc1b3291c10c0b5e88077f3a6/tests/results/qwen3_32b/stress_prefix_cache.json).
+The Prefix Cache reused 129,024 Tokens, or 16,128 Tokens per request: exactly 63 complete 256-token Blocks. The maximum-output run reached 40,937 total Tokens, only 23 below the configured 40,960 position capacity. Updated raw evidence is committed for [high concurrency](https://github.com/KevinWu8192/MinivLLM/blob/10f61d40a8705bae90123016d2c81ad70e44d0f8/tests/benchmarks/high-concurrency.json), [long Decode](https://github.com/KevinWu8192/MinivLLM/blob/10f61d40a8705bae90123016d2c81ad70e44d0f8/tests/benchmarks/long-decode.json), and [Prefix Cache](https://github.com/KevinWu8192/MinivLLM/blob/10f61d40a8705bae90123016d2c81ad70e44d0f8/tests/benchmarks/prefix-cache.json).
 
 ## Major Fixes
 

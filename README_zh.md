@@ -13,7 +13,7 @@
 
 本项目提供了一个可以完整运行的 MiniVLLM 推理框架，修复了原项目中的各种 Bug，并在此基础上持续增加新特性。Bug 修复和新特性会以 Release 的形式发布，每个 Release 都会标注对应的 Commit ID 区间。学习者可以跟随 Release，一步一步地修复 Bug、学习新特性，也可以尝试添加自己的新特性。
 
-> **推理测试起点：** [Release 8](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8) 是本项目第一个可以完整端到端运行（fully end-to-end runnable）的 Release。进行推理或 Benchmark 测试时，请从 Release 8 或更新版本开始；此前版本是渐进式学习节点，不保证能够跑通完整推理流程。
+> **推理测试起点：** [Release 8](https://github.com/KevinWu8192/MinivLLM/tree/release-8) 是本项目第一个可以完整端到端运行（fully end-to-end runnable）的 Release。进行推理或 Benchmark 测试时，请从 Release 8 或更新版本开始；此前版本是渐进式学习节点，不保证能够跑通完整推理流程。
 
 ## 最近发布
 
@@ -26,7 +26,7 @@
 | Release 5 | `ee950af` | [`release-5`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-5) | 多 GPU 协同、调度公平性、数值稳定性与 CUDA Graph 正确性 | [简体中文](releases/release-5_zh.md) · [English](releases/release-5.md) |
 | Release 6 | `dcff99f–f71bd44` | [`release-6`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-6) | Split-KV GQA Decode Kernel、分块 MMA、稳定归约与约 75× Kernel 级加速 | [简体中文](releases/release-6_zh.md) · [English](releases/release-6.md) |
 | Release 7 | `7d1b0f1–5608dc3` | [`release-7`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-7) | Qwen3-32B 集成、Large-scale Attention 与 TP 单次下载启动 | [简体中文](releases/release-7_zh.md) · [English](releases/release-7.md) |
-| **Release 8** | `1e73f71–bfefde5` | **[`release-8`](https://github.com/KevinWu8192/MinivLLM-Fixed/tree/release-8)** | **首个可以完整端到端运行的 Release，推荐从该版本开始进行推理测试。** 包含 Qwen3-32B 压力测试以及 BF16、KV Cache、TP 清理与 CUDA Graph 修复。 | [简体中文](releases/release-8_zh.md) · [English](releases/release-8.md) |
+| **Release 8** | `1e73f71–10f61d4` | **[`release-8`](https://github.com/KevinWu8192/MinivLLM/tree/release-8)** | **首个可以完整端到端运行的 Release，推荐从该版本开始进行推理测试。** 包含 Qwen3-32B 压力测试以及 BF16、KV Cache、TP 清理与 CUDA Graph 修复。 | [简体中文](releases/release-8_zh.md) · [English](releases/release-8.md) |
 
 自定义实现的vLLM推理引擎，基于Nano-vLLM。添加了注意力机制的基准测试，以及Pageattention、FlashAttention的代码实现。
 
