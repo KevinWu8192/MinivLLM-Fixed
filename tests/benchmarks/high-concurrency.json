@@ -1,0 +1,74 @@
+{
+  "selected_suite": "high-concurrency",
+  "suites": [
+    {
+      "configuration": {
+        "suite": "high-concurrency",
+        "description": "High request concurrency and aggregate token throughput",
+        "model": "Qwen/Qwen3-32B",
+        "tensor_parallel_size": 2,
+        "concurrency": 16,
+        "target_prompt_tokens": 4096,
+        "actual_max_prompt_tokens": 4075,
+        "output_tokens": 256,
+        "max_position": 40960,
+        "engine_max_model_length": 4331,
+        "native_context_length": 32768,
+        "enforce_eager": false,
+        "block_size_tokens": 256,
+        "gpu_memory_utilization": 0.9,
+        "pytorch_version": "2.9.1+cu128",
+        "cuda_version": "12.8"
+      },
+      "results": [
+        {
+          "name": "high-concurrency",
+          "requests": 16,
+          "prompt_tokens": 65200,
+          "computed_prefill_tokens": 65200,
+          "cached_prompt_tokens": 0,
+          "cache_hit_rate": 0.0,
+          "output_tokens": 4096,
+          "prefill_seconds": 11.037499206140637,
+          "decode_seconds": 9.440076781436801,
+          "total_seconds": 20.481867442838848,
+          "prefill_tokens_per_second": 5907.1351927007545,
+          "decode_tokens_per_second": 432.1998744780352,
+          "output_tokens_per_second": 199.98176491626987,
+          "requests_per_second": 0.7811787692041792,
+          "block_size_tokens": 256,
+          "total_kv_cache_blocks": 1578,
+          "peak_used_kv_cache_blocks": 272,
+          "peak_kv_cache_memory_bytes_per_gpu": 9126805504,
+          "peak_kv_cache_memory_bytes_total": 18253611008,
+          "gpus": [
+            {
+              "rank": 0,
+              "device_index": 0,
+              "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+              "compute_capability": "12.0",
+              "total_memory_bytes": 101973950464,
+              "model_memory_bytes": 33433888768,
+              "kv_cache_capacity_bytes": 52948893696,
+              "kv_cache_block_bytes": 33554432,
+              "peak_allocated_memory_bytes": 94147551232,
+              "peak_reserved_memory_bytes": 97639202816
+            },
+            {
+              "rank": 1,
+              "device_index": 1,
+              "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+              "compute_capability": "12.0",
+              "total_memory_bytes": 101973950464,
+              "model_memory_bytes": 33433888768,
+              "kv_cache_capacity_bytes": 52948893696,
+              "kv_cache_block_bytes": 33554432,
+              "peak_allocated_memory_bytes": 94147551232,
+              "peak_reserved_memory_bytes": 97639202816
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
